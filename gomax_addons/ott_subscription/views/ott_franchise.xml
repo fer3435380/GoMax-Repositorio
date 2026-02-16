@@ -1,0 +1,73 @@
+<odoo>
+    <data>
+        <record id="ott_franchise_tree" model="ir.ui.view">
+            <field name="name">ott.franchise.list</field>
+            <field name="model">ott.franchise</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="franchise_name"/>
+                    <field name="franchise_information"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="ott_franchise_form" model="ir.ui.view">
+            <field name="name">ott.franchise.form</field>
+            <field name="model">ott.franchise</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="franchise_name"/>
+                            <field name="franchise_information"/>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Catálogo Permitido" name="allowed_catalog">
+                                <group>
+                                    <group string="Planes Base">
+                                        <field name="allowed_base_product_ids" 
+                                               widget="many2many_tags" 
+                                               options="{'no_create': True}" 
+                                               placeholder="Productos base..."/>
+                                    </group>
+                                    
+                                    <group string="Servicios Extra">
+                                        <field name="allowed_extra_product_ids" 
+                                               widget="many2many_tags" 
+                                               options="{'no_create': True}" 
+                                               placeholder="Productos extra..."/>
+                                    </group>
+                                </group>
+
+                                <group string="Tarifas de Eventos">
+                                    <field name="allowed_rate_ids" 
+                                           widget="many2many_tags" 
+                                           options="{'no_create': True}" 
+                                           placeholder="Seleccione las tarifas de eventos permitidas..."/>
+                                </group>
+
+                                <p class="text-muted">
+                                    Seleccione específicamente qué productos base, extras y tarifas de eventos están disponibles para esta franquicia. 
+                                    Esto filtrará las opciones en las suscripciones de los usuarios.
+                                </p>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="ott_franchise_action" model="ir.actions.act_window">
+            <field name="name">Franquicias</field>
+            <field name="res_model">ott.franchise</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem id="subscription_package_menu_action_franchise"
+                  name="Franquicias"
+                  parent="subscription_package.subscription_menu_config"
+                  action="ott_franchise_action"
+                  sequence="50"/>
+    </data>
+</odoo>

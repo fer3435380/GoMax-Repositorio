@@ -1,0 +1,24 @@
+<odoo>
+    <record id="sale_order_giftcard_py3o_report" model="ir.actions.report">
+        <field name="name">Giftcards PDF</field>
+
+        <!-- OBLIGATORIO EN ODOO 18 -->
+        <field name="report_name">
+            ott_subscription.sale_order_giftcard_py3o_report
+        </field>
+
+        <!-- Modelo desde donde se imprime -->
+        <field name="model">sale.order</field>
+
+        <!-- Tipo -->
+        <field name="report_type">py3o</field>
+        <field name="py3o_filetype">pdf</field>
+
+        <!-- Template Py3o -->
+        <field name="py3o_template_id" ref="giftcard_py3o_template"/>
+
+        <!-- Botón en Sale Order -->
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

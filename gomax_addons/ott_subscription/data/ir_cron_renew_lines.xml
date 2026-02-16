@@ -1,0 +1,37 @@
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_auto_renew_ott_lines" model="ir.cron">
+            <field name="name">OTT: Renew Expired Lines</field>
+            <field name="model_id" ref="model_subscription_package_product_line"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_renew_expiring_lines()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 10:00:00')"/>
+        </record>
+
+        <record id="ir_cron_expire_ott_lines" model="ir.cron">
+            <field name="name">OTT: Expired Lines Not Renewed</field>
+            <field name="model_id" ref="model_subscription_package_product_line"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_expire_non_renewing_lines()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 10:00:00')"/>
+        </record>
+
+        <record id="ir_cron_close_empty_contracts" model="ir.cron">
+            <field name="name">OTT: Closed Contracts Without Services</field>
+            <field name="model_id" ref="model_subscription_package"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_close_empty_contracts()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 10:05:00')"/>
+        </record>
+    </data>
+</odoo>

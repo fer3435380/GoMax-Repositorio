@@ -1,0 +1,47 @@
+<odoo>
+    <data>
+        <record id="ott_permanence_list_view" model="ir.ui.view">
+            <field name="name">ott.permanence.list</field>
+            <field name="model">ott.permanence</field>
+            <field name="arch" type="xml">
+                <list string="OTT Permanences">
+                    <field name="permanence_name"/>
+                    <field name="permanence_duration" class="text-start"/>
+                    <field name="permanence_type"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="ott_permanence_form_view" model="ir.ui.view">
+            <field name="name">ott.permanence.form</field>
+            <field name="model">ott.permanence</field>
+            <field name="arch" type="xml">
+                <form string="OTT Permanence">
+                    <sheet>
+                        <group>
+                            <field name="permanence_name"/>
+                            <field name="permanence_duration" class="text-start"/>
+                            <field name="permanence_type"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="ott_permanence_action" model="ir.actions.act_window">
+
+            <field name="name">Permanence</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ott.permanence</field>
+            <field name="view_mode">list,form</field>
+            
+        </record>
+
+        <menuitem id="ott_subscription_package_permanence_menu"
+                  name="Permanence"
+                  parent="subscription_package.subscription_menu_config"
+                  action="ott_permanence_action"
+                  sequence="121"/>
+
+    </data>
+</odoo>

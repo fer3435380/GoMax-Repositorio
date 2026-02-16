@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form_ott" model="ir.ui.view">
+            <field name="name">res.config.settings.view.ott</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Subscription" string="Subscription" id="subscription" name="subscription" web_icon="static/description/icon.png">
+                        <block title="OTT Settings" name="ott_settings">
+                            <div class="app_settings_block" data-string="subscription" string="Subscription" id="ott" data-key="subscription">
+                                <h2>Configuración con servicio OTT</h2>
+                        <div class="row mt16 o_settings_container" id="ott_setting">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">URL OTT</span>
+                                    <div class="text-muted content-group mt16">
+                                        <field name="ott_url" class="text-center oe_inline" />
+                                        <span> url de conexión con servicio OTT </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">User OTT</span>
+                                    <div class="text-muted content-group mt16">
+                                        <field name="ott_user" class="text-center oe_inline" />
+                                        <span> user de conexion </span>
+                                    </div>
+                                    <div class="text-muted content-group mt16">
+                                        <field name="ott_password" password='True' class="text-center oe_inline" />
+                                        <span> password de conexion </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2>Configuraciones con Frontend</h2>
+                        <div class="row mt16 o_settings_container" id="ott_setting">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">URL de redirección para reseteo de password</span>
+                                    <div class="text-muted content-group mt16">
+                                        <field name="ott_password_redirect_url" class="text-center oe_inline" />
+                                        <span> URL de redirección para reseteo de password </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2>Configuración de Placetopay</h2>
+                        <div class="row mt16 o_settings_container" id="ott_setting">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Placetopay</span>
+                                    <div class="text-muted content-group mt16">
+                                        <field name="placetopay_url" class="text-center oe_inline" />
+                                        <span> Placetoplay URL</span>
+                    
+                                        <field name="placetopay_login" class="text-center oe_inline" />
+                                        <span> Placetoplay Login </span>
+
+                                        <field name="placetopay_secret" class="text-center oe_inline" />
+                                        <span> Placetoplay Secret </span>
+
+                                        <field name="placetopay_question" class="text-center oe_inline" />
+                                        <span> Placetopay Preguntas </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h2>Configuracion de Datafast</h2>
+                        <div class="row mt16 o_settings_container" id="ott_setting">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">Datafast</span>
+                                    <div class="text-muted content-group mt16">
+                                        <field name="datafast_url" class="text-center oe_inline" />
+                                        <span> URL de datafast</span>
+                    
+                                        <field name="datafast_entityId" class="text-center oe_inline" />
+                                        <span> token de entityId </span>
+
+                                        <field name="datafast_mid" class="text-center oe_inline" />
+                                        <span> MID datafast</span>
+
+                                        <field name="datafast_tid" class="text-center oe_inline" />
+                                        <span> TID datafast</span>
+
+                                        <field name="datafast_eci" class="text-center oe_inline" />
+                                        <span> ECI datafast</span>
+
+                                        <field name="datafast_auth" class="text-center oe_inline" />
+                                        <span> Authorization datafast</span>
+                                    </div>
+
+                                    <div class="text-muted content-group mt16">
+                                        <field name="datafast_test_mode" class="text-center oe_inline" />
+                                        <span> Test mode</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--
+                        <h2>Configuración de precio de franquicias para plan gratuito</h2>
+                        <div class="row mt16 o_settings_container" id="ott_setting">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">URL OTT</span>
+                                    <div class="text-muted content-group mt16">
+                                        <field name="ott_price_min" class="text-center oe_inline" />
+                                        <span> precio minimo que debe tener un cliente en su plan para plan gratuito </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        -->
+
+                            </div>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ott_config_settings_action" model="ir.actions.act_window">
+            <field name="name">Configuracion OTT</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+            <field name="context">{'module' : 'subscription', 'bin_size': False}</field>
+        </record>
+
+        <menuitem id="subscription_package_menu_action"
+            name="Ajustes OTT"
+            parent="subscription_package.subscription_menu_config"
+            action="ott_config_settings_action"                  
+            sequence="100"
+            groups="subscription_package.group_subscription_user"/>
+    </data>
+</odoo>

@@ -1,0 +1,41 @@
+<odoo>
+  <data>
+    <record id="view_inherit_product_template" model="ir.ui.view">
+        <field name="name">view.product.template.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='variants']" position="after">
+                <page string="OTT Subscription" name="ott_subscription_page">
+                    <group>
+                        <group string="Configuración del Plan">
+                            <field name="ott_subscription_type"/>
+                            <field name="web_product"/>
+                            <field name="rank_ott"/>
+                        </group>
+                    </group>
+                    
+                    <separator string="Servicios OTT"/>
+                    <group>
+                        <field name="service" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                </page>
+
+                <page string="Product Configuration" name="product_configuration_page">
+                    <group>
+                        <group string="Especificaciones de la Tabla">
+                            <field name="channel_count"/>
+                            <field name="simultaneous_screens"/>
+                            <field name="recording_hours"/>
+                        </group>
+                        <group string="Contenido Adicional">
+                            <field name="included_events"/>
+                            <field name="ott_extras"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="subscription_package_stage_view_form_inherit" model="ir.ui.view">
+        <field name="name">subscription.package.stage.view.form.inherit</field>
+        <field name="model">subscription.package.stage</field>
+        <field name="inherit_id" ref="subscription_package.subscription_package_stage_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category']" position="replace">
+                <field name="category" widget="radio"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_subscription_package_form_inherit_ott" model="ir.ui.view">
+        <field name="name">subscription.package.form.inherit.ott</field>
+        <field name="model">subscription.package</field>
+        <field name="inherit_id" ref="subscription_package.subscription_package_view_form"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="franchise_id" 
+                       required="1" 
+                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="allowed_base_product_ids" invisible="1"/>
+                <field name="allowed_extra_product_ids" invisible="1"/>
+                <field name="allowed_rate_ids" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">0</attribute>
+                <attribute name="force_save">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="ott_account_id" widget="many2one" required="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_subscription_package_list_inherit_ott" model="ir.ui.view">
+        <field name="name">subscription.package.list.inherit.ott</field>
+        <field name="model">subscription.package</field>
+        <field name="inherit_id" ref="subscription_package.subscription_package_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="franchise_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_subscription_package_form_inherit_ott_buttons" model="ir.ui.view">
+        <field name="name">subscription.package.form.inherit.ott.buttons</field>
+        <field name="model">subscription.package</field>
+        <field name="inherit_id" ref="subscription_package.subscription_package_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//form" position="attributes">
+                <attribute name="readonly">stage_category == 'closed'</attribute>
+            </xpath>
+
+            <!-- Insertar los botones después del campo oculto 'is_closed' en el header -->
+            <xpath expr="//header/field[@name='is_closed']" position="after">
+
+                <button name="action_suspend_subscription"
+                        string="Suspend Subscription"
+                        type="object"
+                        class="btn-warning"
+                        invisible="stage_category != 'progress'"/>
+
+                <button name="action_add_new_services"
+                        string="Activate New Services"
+                        type="object"
+                        class="btn-primary"
+                        invisible="stage_category != 'progress'"/>
+
+                <button name="action_activate_subscription"
+                        string="Activate Subscription"
+                        type="object"
+                        class="btn-success"
+                        invisible="stage_category != 'suspend'"/>
+
+            </xpath>
+            <xpath expr="//header/button[@name='button_close']" position="attributes">
+                <attribute name="invisible">stage_category not in ['progress', 'suspend']</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="subscription_package.subscription_package_action" model="ir.actions.act_window">
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="ott_subscription_tree_view_inherit" model="ir.ui.view">
+
+        <field name="name">ott.subscription.tree.view.inherit</field>
+        <field name="model">subscription.package</field>
+        <field name="inherit_id" ref="subscription_package.subscription_package_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="ott_account_id"/>
+                <field name="stage_category" invisible="1"/>
+            </xpath>
+        </field>
+
+    </record>
+
+</odoo>

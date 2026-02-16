@@ -1,0 +1,10 @@
+<odoo>
+    <record id="giftcard_py3o_template" model="py3o.template">
+        <field name="name">Giftcards PDF Template</field>
+
+        <!-- Archivo ODT -->
+        <field name="py3o_template_data"
+               type="base64"
+               file="ott_subscription/views/templates/Giftcards PDF Template.odt"/>
+    </record>
+</odoo>

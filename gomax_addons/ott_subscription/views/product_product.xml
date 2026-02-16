@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record id="view_product_product_inherit_gomax" model="ir.ui.view">
+            <field name="name">product.product.form.inherit.gomax</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='sales']" position="after">
+                    <page string="GoMax Config" name="gomax_web_config">
+                        <group>
+                            <field name="web_product"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

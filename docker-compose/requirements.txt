@@ -1,0 +1,10 @@
+xades==0.2.4
+xmlsig==0.1.9
+zeep
+pyjwt
+packaging
+cx_oracle==8.3.0
+python-sql
+pandas
+py3o.template
+py3o.formats

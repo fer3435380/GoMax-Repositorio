@@ -1,0 +1,35 @@
+variables:
+  GITLAB_USER_LOGIN: "usrodoo"
+  GITLAB_URL_HTTP: "http://172.30.3.28"
+  DB_TEST: "gomax_test_ci"
+
+stages:
+  - build
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: $CI_COMMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+build-feature:
+  image: ubuntu:latest
+  stage: build
+  tags:
+    - test
+  before_script:
+    - apt-get update && apt-get install -y git
+    - apt-get -yq install sshpass
+    - install -m 600 -D /dev/null ~/.ssh/id_rsa
+    - echo "$SSH_KEY" | base64 -d > ~/.ssh/id_rsa
+    - ssh-keyscan -H $SSH_HOST > ~/.ssh/known_hosts
+  script:
+    - echo "Build steps go here..."
+  after_script:
+    - rm -rf ~/.ssh
+  rules:
+    - if: '$CI_COMMIT_MESSAGE =~ /deploy/i && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"'
+      when: always
+    - when: never
+
+

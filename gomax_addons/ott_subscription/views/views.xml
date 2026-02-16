@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+<!--
+    <record model="ir.ui.view" id="ott_subscription.list">
+      <field name="name">ott_subscription list</field>
+      <field name="model">ott_subscription.ott_subscription</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </list>
+      </field>
+    </record>
+-->
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="ott_subscription.action_window">
+      <field name="name">ott_subscription window</field>
+      <field name="res_model">ott_subscription.ott_subscription</field>
+      <field name="view_mode">list,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="ott_subscription.action_server">
+      <field name="name">ott_subscription server</field>
+      <field name="model_id" ref="model_ott_subscription_ott_subscription"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="ott_subscription" id="ott_subscription.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="ott_subscription.menu_1" parent="ott_subscription.menu_root"/>
+    <menuitem name="Menu 2" id="ott_subscription.menu_2" parent="ott_subscription.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="ott_subscription.menu_1_list" parent="ott_subscription.menu_1"
+              action="ott_subscription.action_window"/>
+    <menuitem name="Server to list" id="ott_subscription" parent="ott_subscription.menu_2"
+              action="ott_subscription.action_server"/>
+-->
+  </data>
+</odoo>

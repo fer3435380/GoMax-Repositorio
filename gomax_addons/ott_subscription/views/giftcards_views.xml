@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ========================================================= -->
+    <!-- 1️⃣ SEASON GIFT -->
+    <!-- ========================================================= -->
+    <record id="view_season_gift_form" model="ir.ui.view">
+      <field name="name">season.gift.form</field>
+      <field name="model">season.gift</field>
+      <field name="arch" type="xml">
+        <form string="Temporada de Giftcards">
+          <sheet>
+            <group>
+              <field name="name"/>
+              <field name="start_date"/>
+              <field name="end_date"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_season_gift_list" model="ir.ui.view">
+      <field name="name">season.gift.list</field>
+      <field name="model">season.gift</field>
+      <field name="arch" type="xml">
+        <list string="Temporadas de Giftcards">
+          <field name="name" width="200"/>
+          <field name="start_date" width="120"/>
+          <field name="end_date" width="120"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="action_season_gift" model="ir.actions.act_window">
+      <field name="name">Temporadas</field>
+      <field name="res_model">season.gift</field>
+      <field name="view_mode">list,form</field>
+      <field name="target">current</field>
+    </record>
+
+
+    <!-- ========================================================= -->
+    <!-- 2️⃣ GIFT TEMPLATE -->
+    <!-- ========================================================= -->
+    <record id="view_gift_template_form" model="ir.ui.view">
+      <field name="name">gift.template.form</field>
+      <field name="model">gift.template</field>
+      <field name="arch" type="xml">
+        <form string="Plantilla de Giftcard">
+          <sheet>
+            <div class="oe_title">
+                <h1><field name="name" placeholder="Nombre de la plantilla..."/></h1>
+            </div>
+            <group>
+              <group string="Configuración General">
+                <field name="description"/>
+                <field name="giftcard_limit"/>
+                <field name="franchise_ids" widget="many2many_tags"/>
+                <field name="season_id"/>
+              </group>
+              <group string="Producto y Tipo">
+                  <field name="ott_type_selection" widget="radio" options="{'horizontal': true}"/>
+                  
+                  <field name="product_id" 
+                        invisible="ott_type_selection == 'event'"
+                        required="ott_type_selection in ['base', 'extra']"
+                        options="{'no_create': True}"/>
+                  
+                  <field name="rate_template_id" 
+                        invisible="ott_type_selection != 'event'"
+                        required="ott_type_selection == 'event'"
+                        options="{'no_create': True}"/>
+              </group>
+            </group>
+            <group string="Vigencia y Permanencia">
+              <group>
+                <field name="permanence_id"/>
+                <field name="start_date"/>
+                <field name="end_date"
+                       modifiers="{
+                           'readonly': [['permanence_id.permanence_type','!=','fixed_date']],
+                           'required': [['permanence_id.permanence_type','=','fixed_date']]
+                       }"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_gift_template_list" model="ir.ui.view">
+      <field name="name">gift.template.list</field>
+      <field name="model">gift.template</field>
+      <field name="arch" type="xml">
+        <list string="Plantillas de Giftcards">
+          <field name="name"/>
+          <field name="ott_type_selection" string="Tipo"/>
+          <field name="product_id" optional="show"/>
+          <field name="rate_template_id" optional="show" string="Tarifa/Evento"/>
+          <field name="giftcard_limit"/>
+          <field name="start_date"/>
+          <field name="end_date"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="action_gift_template" model="ir.actions.act_window">
+      <field name="name">Plantillas</field>
+      <field name="res_model">gift.template</field>
+      <field name="view_mode">list,form</field>
+      <field name="target">current</field>
+    </record>
+
+
+    <!-- ========================================================= -->
+    <!-- 3️⃣ GIFT CARD -->
+    <!-- ========================================================= -->
+    <record id="view_gift_card_form" model="ir.ui.view">
+      <field name="name">gift.card.form</field>
+      <field name="model">gift.card</field>
+      <field name="arch" type="xml">
+        <form string="Giftcard">
+        <header>
+          <field name="sale_state" widget="statusbar"
+               statusbar_visible="draft,sale,active,cancel"/>
+        </header>
+          <sheet>
+            <group>
+              <field name="code_display" readonly="1"/>
+              <field name="template_id"/>
+              <field name="product_id" readonly="1" options="{'no_open': True}"/>
+
+              <!-- Domain dinámico usando allowed_franchise_ids -->
+              <field name="franchise_id"
+                     domain="[('id', 'in', allowed_franchise_ids)]"/>
+
+              <field name="sale_order_id" string="Orden de venta"/>
+              <!-- <field name="issue_date"/>
+              <field name="expiration_date"/> -->
+              <field name="state"/>
+              <field name="res_partner" readonly="1"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="view_gift_card_list" model="ir.ui.view">
+      <field name="name">gift.card.list</field>
+      <field name="model">gift.card</field>
+      <field name="arch" type="xml">
+        <list string="Giftcards">
+          <field name="code_display" readonly="1" width="150"/>
+          <field name="template_id" width="150"/>
+          <field name="product_id" width="150"/>
+          <field name="franchise_id" width="150"/>
+          <field name="sale_order_id" width="100"/>
+          <!-- <field name="issue_date" width="100"/>
+          <field name="expiration_date" width="150"/> -->
+          <field name="state"/>
+          <field name="res_partner" readonly="1"/>
+
+        </list>
+      </field>
+    </record>
+
+    <record id="action_gift_card" model="ir.actions.act_window">
+      <field name="name">Giftcards</field>
+      <field name="res_model">gift.card</field>
+      <field name="view_mode">list,form</field>
+      <field name="target">current</field>
+    </record>
+
+
+    <!-- ========================================================= -->
+    <!-- 📂 MENÚS -->
+    <!-- ========================================================= -->
+    <menuitem id="menu_giftcards_root"
+              name="Giftcards"
+              parent="subscription_package.subscription_menu_root"
+              sequence="12"/>
+
+    <menuitem id="menu_giftcards_season"
+              name="Temporadas"
+              parent="menu_giftcards_root"
+              action="action_season_gift"
+              sequence="1"/>
+
+    <menuitem id="menu_giftcards_template"
+              name="Plantillas"
+              parent="menu_giftcards_root"
+              action="action_gift_template"
+              sequence="2"/>
+
+    <menuitem id="menu_giftcards_card"
+              name="Giftcards"
+              parent="menu_giftcards_root"
+              action="action_gift_card"
+              sequence="3"/>
+
+  </data>
+</odoo>

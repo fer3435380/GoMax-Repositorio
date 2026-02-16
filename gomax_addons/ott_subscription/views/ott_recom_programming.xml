@@ -1,0 +1,76 @@
+<odoo>
+    <data>
+
+        <!-- Vista lista -->
+        <record id="ott_recommended_programming_tree" model="ir.ui.view">
+            <field name="name">ott.recommended.programming.list</field>
+            <field name="model">ott.recommended.programming</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="title"/>
+                    <field name="description"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista formulario -->
+        <record id="view_ott_recommended_programming_form" model="ir.ui.view">
+            <field name="name">ott.recommended.programming.form</field>
+            <field name="model">ott.recommended.programming</field>
+            <field name="arch" type="xml">
+                <form string="Programación recomendada">
+                    <sheet>
+                        <group>
+                            <!-- Columna izquierda -->
+                            <group>
+                                <field name="title" placeholder="Ingrese el título..."/>
+                                <field name="description"/>
+                                <field name="state"/>
+                            </group>
+
+                            <!-- Columna derecha (imagen) -->
+                            <group>
+                                <!-- Campo real oculto -->
+                                <field name="image_file" invisible="1"/>
+
+                                <!-- Subir imagen -->
+                                <field name="image_file"
+                                    string="Subir imagen"
+                                    filename="image_filename"
+                                    widget="binary"
+                                    invisible="image_file"/>
+
+                                <!-- Vista previa -->
+                                <field name="image_file"
+                                    widget="image"
+                                    nolabel="1"
+                                    options="{'size': [200, 200]}"
+                                    invisible="not image_file"
+                                    class="centered-image"/>
+
+                                <field name="image_filename" invisible="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Acción -->
+        <record id="ott_recommended_programming_action" model="ir.actions.act_window">
+            <field name="name">Programación recomendada</field>
+            <field name="res_model">ott.recommended.programming</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Menú (MISMA DIRECCIÓN) -->
+        <menuitem id="subscription_package_menu_action_recommended_programming"
+                  name="Programación recomendada"
+                  parent="subscription_package.subscription_menu_config"
+                  action="ott_recommended_programming_action"
+                  sequence="60"
+                  groups="base.group_system"/>
+    </data>
+</odoo>
