@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 class OTTService(models.Model):
     _name = 'ott.service'
     _description = 'OTT Service'
+    _rec_name = 'service'
 
     @api.model
     def _selection_services(self):

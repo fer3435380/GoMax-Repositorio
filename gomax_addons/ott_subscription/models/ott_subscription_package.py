@@ -240,19 +240,19 @@ class SubscriptionPackage(models.Model):
         res = super(SubscriptionPackage, self).button_start_date()
 
         for rec in self:
-            email_user = ""
-            if rec.ott_account_id and rec.ott_account_id.ott_account_email:
-                email_user = rec.ott_account_id.ott_account_email.split('@')[0]
-            
-            ref_number = ""
-            
-            if rec.reference_code:
-                ref_number = rec.reference_code.replace('SUB', '')
-            
-            new_name = f"{email_user.upper()}-{ref_number}"
+           
+            if not rec.reference_code:
+                continue
+           
+            new_name = False
 
-            rec.write({'name': new_name})
-
+            if 'SUB' in rec.reference_code and 'SUB-' not in rec.reference_code:
+               new_name = rec.reference_code.replace('SUB', 'SUB-')
+            elif 'GIF' in rec.reference_code and 'GIF-' not in rec.reference_code:
+               new_name = rec.reference_code.replace('GIF', 'SUB-')
+            
+            if new_name:
+               rec.write({'name': new_name})
 
         return res
     
@@ -263,8 +263,6 @@ class SubscriptionPackage(models.Model):
         
         SubscriptionLine = self.env['subscription.package.product.line']
         
-        # Base del domain: buscamos el plan PRINCIPAL (no extra) que esté abierto
-        # Ajustado a la lógica de Odoo 18 que mostraste antes
         base_domain = [
             ('ott_type', '=', 'base'),
             ('subscription_id', '=', self.id),
@@ -379,9 +377,9 @@ class SubscriptionPackage(models.Model):
 
                 contract_name = existing_contracts[0].reference_code
                 raise ValidationError(_(
-                    "El usuario OTT %s ya tiene un contrato activo (%s). "
-                    "No se permite tener multiples contratos activos simultáneamente."
-                    "Por favor, agregue los nuevos servicios al contrato existente."
+                    "El usuario OTT %s ya tiene un contrato activo (%s)."
+                    "\nNo se permite tener multiples contratos activos simultáneamente."
+                    "\nPor favor, agregue los nuevos servicios al contrato existente."
                 ) % (email_ott, contract_name))
             
     @api.model

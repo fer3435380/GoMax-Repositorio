@@ -22,6 +22,10 @@
                 <attribute name="force_save">1</attribute>
             </xpath>
 
+            <field name="plan_id" position="attributes">
+                    <attribute name="required">False</attribute>
+            </field>
+
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="ott_account_id" widget="many2one" required="1"/>
             </xpath>
@@ -52,13 +56,7 @@
 
             <!-- Insertar los botones después del campo oculto 'is_closed' en el header -->
             <xpath expr="//header/field[@name='is_closed']" position="after">
-
-                <button name="action_suspend_subscription"
-                        string="Suspend Subscription"
-                        type="object"
-                        class="btn-warning"
-                        invisible="stage_category != 'progress'"/>
-
+                
                 <button name="action_add_new_services"
                         string="Activate New Services"
                         type="object"
@@ -71,9 +69,18 @@
                         class="btn-success"
                         invisible="stage_category != 'suspend'"/>
 
+                <button name="action_suspend_subscription"
+                        string="Suspend Subscription"
+                        type="object"
+                        class="btn-warning"
+                        invisible="stage_category != 'progress'"/>
+
+                
+
             </xpath>
             <xpath expr="//header/button[@name='button_close']" position="attributes">
                 <attribute name="invisible">stage_category not in ['progress', 'suspend']</attribute>
+                <attribute name="class">btn-danger</attribute>
             </xpath>
 
         </field>
