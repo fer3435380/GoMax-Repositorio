@@ -17,7 +17,7 @@
                     
                     <separator string="Servicios OTT"/>
                     <group>
-                        <field name="service" widget="many2many_tags" nolabel="1"/>
+                        <field name="service" nolabel="1"/>
                     </group>
                 </page>
 

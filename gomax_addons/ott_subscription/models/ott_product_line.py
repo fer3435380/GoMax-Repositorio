@@ -40,7 +40,7 @@ class ProductLine(models.Model):
 
     state = fields.Selection(
                         selection=state_options,
-                        string="Estado",
+                        string="State",
                         default="draft",
                         readonly=True,
                         help="Define el estado del modulo")
@@ -55,6 +55,7 @@ class ProductLine(models.Model):
         default="base",
         required=True,
         readonly=False,
+        store=True,
         help="Define el tipo de subscripción OTT"
     )
 
