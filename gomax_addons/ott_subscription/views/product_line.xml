@@ -90,8 +90,8 @@
                                        decoration-danger="state == 'terminated'"/>
                                 
                                 <field name="ott_permanence" optional="show" force_save="1" readonly="1" options="{'no_open': True}"/>
-                                <field name="ott_start_date" optional="hide" force_save="1" readonly="1"/>
-                                <field name="ott_end_date" optional="hide" force_save="1" readonly="1"/>
+                                <field name="ott_start_date"  force_save="1" readonly="1"/>
+                                <field name="ott_end_date"  force_save="1" readonly="1"/>
                                 <field name="ott_type" column_invisible="False" readonly="1" force_save="1"/>
                                                                 
                                 <field name="price_tax" readonly="1"/>

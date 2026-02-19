@@ -20,6 +20,7 @@
                 <attribute name="required">0</attribute>
                 <attribute name="readonly">0</attribute>
                 <attribute name="force_save">1</attribute>
+                <attribute name="domain">['|', ('user_ids', '=', False), ('user_ids.share', '=', True)]</attribute>
             </xpath>
 
             <field name="plan_id" position="attributes">
@@ -56,7 +57,7 @@
 
             <!-- Insertar los botones después del campo oculto 'is_closed' en el header -->
             <xpath expr="//header/field[@name='is_closed']" position="after">
-                
+
                 <button name="action_add_new_services"
                         string="Activate New Services"
                         type="object"
