@@ -75,10 +75,12 @@
                         type="object"
                         class="btn-warning"
                         invisible="stage_category != 'progress'"/>
-
-                
-
             </xpath>
+
+            <xpath expr="//button[@name='button_sale_order']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            
             <xpath expr="//header/button[@name='button_close']" position="attributes">
                 <attribute name="invisible">stage_category not in ['progress', 'suspend']</attribute>
                 <attribute name="class">btn-danger</attribute>

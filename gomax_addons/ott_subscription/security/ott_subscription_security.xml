@@ -21,7 +21,7 @@
         <record id="group_ott_admin" model="res.groups">
             <field name="name">OTT Admin</field>
             <field name="category_id" ref="model_ott_category_subscription"/>
-            <field name="implied_ids" eval="[(4, ref('group_ott_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('group_ott_user')), (4, ref('group_ott_gift'))]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
         

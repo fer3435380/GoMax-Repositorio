@@ -124,66 +124,63 @@ class OTTController(http.Controller):
 
     @http.route('/ott/activate_giftcard', type='json', auth='api_key', methods=['POST'], csrf=False)
     def activate_giftcard(self, **kw):
+        # 1. LEER BODY DE POSTMAN
         data = request.httprequest.get_json()
-
         giftcard_code = data.get('giftcard_code')
-        email = data.get('email')
-        name = data.get('name')
+        ott_email = data.get('email') # Este correo solo será para el servicio OTT
 
-        if not giftcard_code or not email:
-            raise BadRequest("Debe enviar giftcard_code y email")
+        if not giftcard_code or not ott_email:
+            raise BadRequest("Debe enviar giftcard_code y email en el body")
 
-        Partner = request.env['res.partner']
         GiftCard = request.env['gift.card']
         Subscription = request.env['subscription.package']
         Plan = request.env['subscription.package.plan']
         SubscriptionLine = request.env['subscription.package.product.line']
         OTTAccount = request.env['ott.account']
 
-        # 1. Buscar o crear partner
-        partner = Partner.sudo().search([('email', '=', email)], limit=1)
-        if not partner:
-            partner = Partner.sudo().create({'name': name or email, 'email': email})
-
-        # 2. Buscar giftcard
+        # 2. BUSCAR GIFTCARD EN ODOO
         giftcard = GiftCard.sudo().search([('code', '=', giftcard_code)], limit=1)
         if not giftcard:
             return {'status': False, 'message': 'La giftcard no existe'}
+
+        # ---------------------------------------------------------
+        # 3. EXTRAER EL CLIENTE DE LA ORDEN DE VENTA (El dueño legal)
+        # ---------------------------------------------------------
+        partner_suscripcion = giftcard.sale_order_id.partner_id
         
+        if not partner_suscripcion:
+            return {'status': False, 'message': 'La orden de venta de esta giftcard no tiene un cliente asignado.'}
+
         if giftcard.sale_state == 'cancel':
             return {'status': False, 'message': 'Esta giftcard pertenece a una orden cancelada y no puede ser utilizada.'}
 
         if giftcard.state:
             return {'status': False, 'message': 'La giftcard ya está activa'}
 
-        # ---------------------------------------------------------
-        # 3. VALIDACIÓN DE VIGENCIA DE LA PLANTILLA (Lo que hablamos antes)
-        # ---------------------------------------------------------
         today = fields.Date.context_today(request.env.user)
         if giftcard.template_id.end_date and giftcard.template_id.end_date < today:
-            return {
-                'status': False, 
-                'message': 'El código es válido, pero la promoción de esta giftcard ya ha caducado.'
-            }
+            return {'status': False, 'message': 'El código es válido, pero la promoción de esta giftcard ya ha caducado.'}
+        
+        ott_account = OTTAccount.sudo().search([('ott_account_email', '=', ott_email)], limit=1)
 
-        # 4. Validar suscripciones activas
         active_subs = Subscription.sudo().search([
-            ('partner_id', '=', partner.id),
+            ('ott_account_id.ott_account_email', '=', ott_email),
             ('stage_id.name', '=', 'In Progress')
         ])
         if active_subs:
             return {'status': False, 'message': 'El usuario ya posee una suscripción activa'}
 
-        # 5. Obtener plan por defecto
         default_plan = Plan.sudo().search([], limit=1)
         if not default_plan:
             return {'status': False, 'message': 'No existen planes para crear la suscripción'}
 
-        # 6. Gestionar Cuenta OTT
-        ott_account = OTTAccount.sudo().search([('ott_account_email', '=', email)], limit=1)
+        # ---------------------------------------------------------
+        # 4. GESTIONAR LA CUENTA OTT CON EL CORREO DE POSTMAN
+        # ---------------------------------------------------------
+
         if not ott_account:
             ott_account = OTTAccount.sudo().create({
-                'ott_account_email': email,
+                'ott_account_email': ott_email,
                 'ott_account_password': 'provisional_password'
             })
         
@@ -193,61 +190,82 @@ class OTTController(http.Controller):
             _logger.warning(f"Error preventivo en sincronización OTT: {str(e)}")
 
         # ---------------------------------------------------------
-        # 7. CREAR LA SUSCRIPCIÓN Y SUS LÍNEAS (EL COMBO)
+        # 5. CREAR LA SUSCRIPCIÓN UNITARIA
         # ---------------------------------------------------------
         try:
-            # A) Creamos la cabecera de la suscripción
             subscription = Subscription.sudo().create({
-                'partner_id': partner.id,
+                'partner_id': partner_suscripcion.id, # -> Se asigna al cliente de la orden
                 'plan_id': default_plan.id,
                 'franchise_id': giftcard.franchise_id.id,
                 'is_ott_managed': True,
-                'ott_account_id': ott_account.id,
-                'ott_reference': f'OTT/{partner.name}'[:64],
+                'reference_code': f"GIF{giftcard.sale_order_id.name}",
+                'ott_account_id': ott_account.id,     # -> Se asigna la cuenta OTT de Postman
+                'ott_reference': f'OTT/{ott_email}'[:64],
             })
             
-            # B) Buscamos las líneas de la orden que generó esta giftcard
+            # Heredar combo de la orden
             order_lines = giftcard.sale_order_id.order_line.filtered(lambda l: l.ott_type in ['base', 'extra', 'event'])
             
             if not order_lines:
                 raise Exception("La orden de venta de la giftcard no tiene productos válidos.")
 
-            # C) Creamos una línea de suscripción por cada producto comprado
             for line in order_lines:
-                SubscriptionLine.sudo().create({
-                    'subscription_id': subscription.id,
-                    'product_id': line.product_id.id,
-                    'product_qty': line.product_uom_qty,
-                    # Puedes poner line.price_unit o 0.0 si para ti la giftcard ya fue pagada y no debe cobrar recurrencia aquí
-                    'unit_price': line.price_unit, 
-                    'ott_start_date': today, # <-- LA FECHA DE INICIO ES HOY (Activación)
-                    'ott_type': line.ott_type,
-                    'ott_permanence': line.ott_permanence.id, # <-- LA DURACIÓN SE HEREDA DE LA ORDEN
-                    'rate_template_id': line.rate_template_id.id if line.rate_template_id else False,
-                })
 
-            # Confirmar suscripción si existe el método
+                if line.rate_template_id.rate_type == "normal":
+                    SubscriptionLine.sudo().create({
+                        'subscription_id': subscription.id,
+                        'product_id': line.product_id.id,
+                        'product_qty': line.product_uom_qty,
+                        'unit_price': line.price_unit, 
+                        'ott_start_date': today,
+                        'ott_type': line.ott_type,
+                        'ott_permanence': line.ott_permanence.id,
+                        'rate_template_id': line.rate_template_id.id if line.rate_template_id else False,
+                    })
+                elif line.rate_template_id.rate_type == "special":
+                    SubscriptionLine.sudo().create({
+                        'subscription_id': subscription.id,
+                        'product_id': line.product_id.id,
+                        'product_qty': line.product_uom_qty,
+                        'unit_price': line.price_unit, 
+                        'ott_start_date': line.rate_template_id.rate_start_date,
+                        'ott_end_date': line.rate_template_id.rate_end_date,
+                        'ott_type': line.ott_type,
+                        'ott_permanence': line.ott_permanence.id,
+                        'rate_template_id': line.rate_template_id.id if line.rate_template_id else False,
+                    })
+                else:
+                    SubscriptionLine.sudo().create({
+                        'subscription_id': subscription.id,
+                        'product_id': line.product_id.id,
+                        'product_qty': line.product_uom_qty,
+                        'unit_price': line.price_unit, 
+                        'ott_start_date': today,
+                        'ott_type': line.ott_type,
+                        'ott_permanence': line.ott_permanence.id,
+                        'rate_template_id': line.rate_template_id.id if line.rate_template_id else False,
+                    })
+
             if hasattr(subscription, 'action_confirm'):
                 subscription.sudo().action_confirm()
             
             if hasattr(subscription, 'button_start_date'):
                 subscription.sudo().button_start_date()
 
-            # 8. Activar giftcard (Quemarla para que no se vuelva a usar)
             giftcard.sudo().write({
                 'state': True,
                 'sale_state': 'active',
-                'res_partner': partner.id
+                'res_partner': partner_suscripcion.id
             })
 
+            # Retorno adaptado para ver la confirmación de ambas partes
             return {
                 'status': True,
-                'message': 'Giftcard (Combo) activada y suscripción creada exitosamente',
+                'message': 'Giftcard activada y suscripción creada exitosamente',
                 'subscription_id': subscription.id,
-                'partner_id': partner.id,
-                'partner_email': partner.email,
+                'cliente_facturacion_id': partner_suscripcion.id, # El que pagó (Odoo)
+                'ott_email_activado': ott_email,                  # El que se conectó (Postman)
                 'giftcard_code': giftcard.code,
-                'plan_id': default_plan.id
             }
 
         except Exception as e:

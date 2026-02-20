@@ -38,7 +38,7 @@
                             <field name="allowed_franchise_ids" invisible="1"/>
                             <field name="allowed_gift_template_ids" invisible="1"/>
                             <field name="order_line" invisible="1"/> 
-                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer'}"/>
+                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer'}" domain="['|', ('user_ids', '=', False), ('user_ids.share', '=', True)]"/>
                             <field name="franchise_id" invisible="not is_giftcard" required="is_giftcard" options="{'no_create': True, 'no_open': True}" domain="[('id', 'in', allowed_franchise_ids)]"/>
                             <field name="gift_template_id" invisible="not is_giftcard" required="is_giftcard" options="{'no_create': True, 'no_open': True}" domain="[('id', 'in', allowed_gift_template_ids)]" readonly="not franchise_id"/>
                         </group>
@@ -135,6 +135,12 @@
             <field name="act_window_id" ref="action_sale_order_giftcards"/>
         </record>
 
-        <menuitem id="menu_sale_order_giftcards" name="Órdenes Giftcards" parent="sale.sale_order_menu" action="action_sale_order_giftcards" sequence="25"/>
+        <menuitem 
+            id="menu_sale_order_giftcards" 
+            name="Órdenes Giftcards" 
+            parent="sale.sale_order_menu" 
+            action="action_sale_order_giftcards" 
+            sequence="25"
+            />
     </data>
 </odoo>

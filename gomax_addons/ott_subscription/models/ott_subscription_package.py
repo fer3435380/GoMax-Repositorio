@@ -249,7 +249,7 @@ class SubscriptionPackage(models.Model):
             if 'SUB' in rec.reference_code and 'SUB-' not in rec.reference_code:
                new_name = rec.reference_code.replace('SUB', 'SUB-')
             elif 'GIF' in rec.reference_code and 'GIF-' not in rec.reference_code:
-               new_name = rec.reference_code.replace('GIF', 'SUB-')
+               new_name = rec.reference_code.replace('GIFS', 'GIFT-')
             
             if new_name:
                rec.write({'name': new_name})
