@@ -49,23 +49,26 @@ class GiftCard(models.Model):
                                    ('cancel','Cancelado')],
                                   'Estado de venta', default='draft')
     
-    rate_template_id = fields.Many2one('ott.rate.template', string="Tarifa de Evento")
-
-    product_id = fields.Many2one(
+    base_product_ids = fields.Many2many(
         'product.product', 
-        string="Producto", 
-        compute="_compute_product_id", 
-        store=True
+        'giftcard_base_product_rel',
+        'giftcard_id', 'product_id',
+        string="Planes Base"
     )
 
-    @api.depends('template_id')
-    def _compute_product_id(self):
-        for card in self:
-            template = card.template_id
-            if template.ott_type_selection == 'event' and template.rate_template_id:
-                card.product_id = template.rate_template_id.rate_product
-            else:
-                card.product_id = template.product_id
+    extra_product_ids = fields.Many2many(
+        'product.product', 
+        'giftcard_extra_product_rel',
+        'giftcard_id', 'product_id',
+        string="Servicios Extras"
+    )
+    
+    rate_template_ids = fields.Many2many(
+        'ott.rate.template',
+        'giftcard_rate_rel',
+        'giftcard_id', 'rate_id',
+        string="Tarifas de Eventos"
+    )
 
     def get_check_giftcard(self, code):
         if not code:
