@@ -79,7 +79,7 @@
 
 
         <menuitem id="rate_events"
-              name="Rate Template"
+              name="Events Rate"
               parent="subscription_package.subscription_menu_root"
               action="action_ott_rate_template"
               sequence="12"/>

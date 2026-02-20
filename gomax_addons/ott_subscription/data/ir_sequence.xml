@@ -1,13 +1,25 @@
 <odoo>
-    <data noupdate="0">
+    <data noupdate="1">
+        
         <record id="seq_res_partner_code" model="ir.sequence">
             <field name="name">Client Code</field>
             <field name="code">res.partner.code</field>
             <field name="prefix">0</field>
             <field name="padding">10</field>
-            <field name="number_next">10000017</field>
+            <field name="number_next">10000000</field>
             <field name="number_increment">1</field>
             <field name="company_id" eval="False"/>
         </record>
+
+        <record id="seq_ott_channel_code" model="ir.sequence">
+            <field name="name">OTT Channel Sequence</field>
+            <field name="code">ott.channel.code</field>
+            <field name="prefix">C-</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
     </data>
 </odoo>

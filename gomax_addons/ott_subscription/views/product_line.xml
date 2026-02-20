@@ -8,51 +8,50 @@
             <field name="arch" type="xml">
 
                 <xpath expr="//field[@name='product_line_ids']" position="attributes">
-                    <attribute name="domain">[('ott_type', '=', 'base')]</attribute>
-                    <attribute name="context">{'default_ott_type': 'base'}</attribute>
+                    <attribute name="invisible">1</attribute>
                 </xpath>
 
-                <xpath expr="//field[@name='product_line_ids']/list/field[@name='product_id']" position="attributes">
-                    <attribute name="domain">[
-                        ('product_tmpl_id.ott_subscription_type', '=', 'base'),
-                        ('id', 'in', parent.allowed_base_product_ids)
-                    ]</attribute>
-                    <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
-                </xpath>
-                
-                <xpath expr="//field[@name='product_line_ids']" position="attributes">
-                    <attribute name="domain">[('ott_type', '=', 'base')]</attribute>
-                    <attribute name="context">{'default_ott_type': 'base'}</attribute>
-                    <attribute name="readonly">current_stage == 'closed'</attribute> 
-                </xpath>
+                <xpath expr="//field[@name='product_line_ids']" position="after">
+                    <field name="base_line_ids" 
+                        mode="list"
+                        readonly="current_stage == 'closed'"
+                        context="{'default_ott_type': 'base'}">
+                        
+                        <list editable="bottom">
+                            <field name="product_id" 
+                                domain="[('product_tmpl_id.ott_subscription_type', '=', 'base'), 
+                                            ('id', 'in', parent.allowed_base_product_ids)]"
+                                options="{'no_create': True, 'no_open': True}"
+                                readonly="state == 'terminated'"/>
+                            
+                            <field name="product_qty" readonly="state == 'terminated'"/>
+                            
+                            <field name="product_uom_id" column_invisible="True"/>
+                            <field name="currency_id" column_invisible="True"/>
+                            
+                            <field name="unit_price" readonly="state == 'terminated'"/>
+                            <field name="discount" optional="show" readonly="state == 'terminated'"/>
+                            <field name="tax_ids" widget="many2many_tags" readonly="state == 'terminated'"/>
 
-                <xpath expr="//field[@name='product_line_ids']/list/field[@name='product_id']" position="attributes">
-                    <attribute name="domain">[
-                        ('product_tmpl_id.ott_subscription_type', '=', 'base'),
-                        ('id', 'in', parent.allowed_base_product_ids)
-                    ]</attribute>
-                    <attribute name="readonly">state == 'terminated'</attribute>
-                </xpath>
-                
-                <xpath expr="//field[@name='product_line_ids']/list/field[@name='product_qty']" position="attributes">
-                    <attribute name="readonly">state == 'terminated'</attribute>
-                </xpath>
-                <xpath expr="//field[@name='product_line_ids']/list/field[@name='unit_price']" position="attributes">
-                    <attribute name="readonly">state == 'terminated'</attribute>
-                </xpath>
+                            <field name="state" widget="badge" readonly="1"
+                                decoration-muted="state == 'draft'"
+                                decoration-success="state == 'open'"
+                                decoration-danger="state == 'terminated'"/> 
+                            
+                            <field name="permanence_type" column_invisible="True"/>
+                            <field name="ott_type" column_invisible="True"/> 
+                            <field name="ott_permanence" options="{'no_edit': True}" readonly="state == 'terminated'"/>
+                            <field name="ott_auto_renew" widget="boolean_toggle" force_save="1" readonly="state == 'terminated'" style="width: 250px;"/>
+                            <field name="ott_start_date" options="{'no_edit': True}" readonly="1"/>
+                            <field name="ott_end_date" force_save="1" readonly="1"/>
+                            <field name="ott_type" column_invisible="False" readonly="1" force_save="1"/>
+                            
+                            <field name="price_tax" readonly="1" />
+                            <field name="total_amount" readonly="1"/>
+                            <field name="price_total" readonly="1" widget="monetary"/>
 
-                <xpath expr="//field[@name='product_line_ids']/list/field[@name='tax_ids']" position="after"> 
-                    <field name="state" column_invisible="False" widget="badge" readonly="1"
-                           decoration-muted="state == 'draft'"
-                           decoration-success = "state == 'open'"
-                           decoration-danger="state == 'terminated'"/> 
-                    <field name="permanence_type" column_invisible="True"/>
-                    <field name="ott_type" column_invisible="False" readonly="1"/>
-
-                    <field name="ott_permanence" options="{'no_edit': True}" readonly="state == 'terminated'"/>
-                    <field name="ott_auto_renew" force_save="1" readonly="state == 'terminated'" style="width: 250px;" widget="boolean_toggle"/>
-                    <field name="ott_start_date" options="{'no_edit': True}" readonly="1"/>
-                    <field name="ott_end_date" force_save="1" readonly="1"/>
+                        </list>
+                    </field>
                 </xpath>
 
                 <field name="partner_id" position="attributes">
@@ -69,6 +68,8 @@
                                 <field name="state" column_invisible="True"/>
                                 <field name="permanence_type" column_invisible="True"/>
                                 <field name="sequence" widget="handle"/>
+                                <field name="currency_id" column_invisible="True"/>
+
 
                                 <field name="rate_template_id" 
                                     string="Event"
@@ -77,30 +78,26 @@
                                     readonly="state == 'terminated'"
                                     optional="show"/>
 
-                                <field name="product_id" 
-                                    string="Products"
-                                    force_save="1"
-                                    readonly="1"
-                                    optional="show"/>
-
                                 <field name="product_qty" required="1" readonly="state == 'terminated'"/>
                                 <field name="product_uom_id" column_invisible="True" force_save="1"/> 
                                 <field name="unit_price" string="Price" force_save="1" readonly="1"/> 
-
+                                <field name="discount" optional="show" readonly="state == 'terminated'"/>
                                 <field name="tax_ids" widget="many2many_tags" optional="show" readonly="state == 'terminated'"/>
+
+                                <field name ="state" force_save="1" readonly="1" widget="badge"
+                                       decoration-muted="state == 'draft'"
+                                       decoration-success = "state == 'open'"
+                                       decoration-danger="state == 'terminated'"/>
                                 
                                 <field name="ott_permanence" optional="show" force_save="1" readonly="1" options="{'no_open': True}"/>
-                                <field name="ott_start_date" optional="hide" force_save="1" readonly="1"/>
-                                <field name="ott_end_date" optional="hide" force_save="1" readonly="1"/>
-                                
-                                <field name="state" force_save="1" readonly="1" widget="badge" 
-                                    decoration-muted="state == 'draft'"
-                                    decoration-success = "state == 'open'"
-                                    decoration-danger="state == 'terminated'"/>
-                                
-                                <field name="ott_type" column_invisible="True"/>
-                                
+                                <field name="ott_start_date"  force_save="1" readonly="1"/>
+                                <field name="ott_end_date"  force_save="1" readonly="1"/>
+                                <field name="ott_type" column_invisible="False" readonly="1" force_save="1"/>
+                                                                
+                                <field name="price_tax" readonly="1"/>
+                                <field name="total_amount" readonly="1" />
                                 <field name="price_total" readonly="1" widget="monetary"/>
+
                             </list>
                         </field>
                     </page>
@@ -128,6 +125,8 @@
                                 <field name="unit_price" required="1" readonly="state == 'terminated'"/>
                                 <field name="discount" optional="show" readonly="state == 'terminated'"/>
                                 <field name="tax_ids" widget="many2many_tags" optional="show" readonly="state == 'terminated'"/>
+                                <field name="currency_id" column_invisible="True"/>
+
 
                                  <field name ="state" force_save="1" readonly="1" widget="badge"
                                        decoration-muted="state == 'draft'"
@@ -142,13 +141,45 @@
                                     readonly="permanence_type != 'fixed_date' or state == 'terminated'"/>
                                 <field name="ott_type" column_invisible="False" readonly="1" force_save="1"/>
                                 
-                                <field name="price_tax" readonly="1" optional="hide"/>
-                                <field name="total_amount" readonly="1" optional="hide"/>
+                                <field name="price_tax" readonly="1"/>
+                                <field name="total_amount" readonly="1" />
                                 <field name="price_total" readonly="1" widget="monetary"/>
                             </list>
                         </field>
                     </page>
                 </xpath>
+
+                <xpath expr="//group[@name='note_group']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//notebook" position="after">
+                    <group name="note_group" col="6" class="mt-2 mt-md-0">
+                        <group colspan="4">
+                        </group>
+                        
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="subscription_total">
+                            <field name="amount_untaxed" 
+                                widget="monetary" 
+                                options="{'currency_field': 'currency_id'}"/>
+                            
+                            <field name="amount_tax" 
+                                widget="monetary" 
+                                options="{'currency_field': 'currency_id'}"/>
+                            
+                            <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                <label for="recurring_total"/>
+                            </div>
+                            <field name="recurring_total" 
+                                nolabel="1" 
+                                class="oe_subtotal_footer_separator" 
+                                widget="monetary" 
+                                options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                        <div class="oe_clear"/>
+                    </group>
+                </xpath>
+                
             </field>
         </record>
     </data>

@@ -30,22 +30,6 @@ class OTTAccount(models.Model):
         record = super(OTTAccount, self).create(vals)
         return record
     
-    """@api.model
-    def create(self, vals):
-        seq_value = self.env['ir.sequence'].next_by_code('res.partner.code') or '9999999'
-        _logger.info(f"VALOR OBTENIDO DE LA SECUENCIA: {seq_value}")
-
-        vals['ott_account_partner'] = int(seq_value)
-
-        records = super(OTTAccount, self).create(vals)
-
-        for record in records:
-            # aquí YA existe el registro
-            _logger.info(f"Cuenta OTT creada: {record.ott_account_email}")
-
-        return records"""
-
-    
     def _generate_provisional_password(self, length=15):
         chars = string.ascii_letters + string.digits
         return ''.join(random.choice(chars) for _ in range(length))

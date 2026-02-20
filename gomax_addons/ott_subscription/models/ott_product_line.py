@@ -40,7 +40,7 @@ class ProductLine(models.Model):
 
     state = fields.Selection(
                         selection=state_options,
-                        string="Estado",
+                        string="State",
                         default="draft",
                         readonly=True,
                         help="Define el estado del modulo")
@@ -55,6 +55,7 @@ class ProductLine(models.Model):
         default="base",
         required=True,
         readonly=False,
+        store=True,
         help="Define el tipo de subscripción OTT"
     )
 
@@ -288,4 +289,52 @@ class ProductLine(models.Model):
                 _logger.info(f"Línea terminada correctamente: {line.id} (Tipo: {line.ott_type})")
             except Exception as e:
                 _logger.error(f"Error al terminar la línea {line.id}: {str(e)}")
+
+    @api.onchange('product_id', 'product_qty', 'ott_permanence')
+    def _onchange_product_id_for_pricelist(self):
+        for line in self:
+            if not line.product_id:
+                continue
+
+            base_price = line.product_id.list_price
+            line.unit_price = base_price
+            line.discount = 0.0
+
+            billing_factor = 1.0
+            permanence = line.ott_permanence
+            if permanence:
+                if permanence.permanence_type == 'days' and permanence.permanence_duration:
+                    billing_factor = permanence.permanence_duration / 30.0
+                elif permanence.permanence_type == 'months' and permanence.permanence_duration:
+                    billing_factor = float(permanence.permanence_duration)
+            
+            eval_qty = line.product_qty * billing_factor
+            date = line.ott_start_date or fields.Date.context_today(line)
+            partner = line.subscription_id.partner_id or self.env.user.partner_id
+
+            user_pricelists = self.env.user.sudo().pricelist_ids
+            applied_rule = False
+            final_price = base_price
+
+            for pricelist in user_pricelists:
+                price, rule_id = pricelist._get_product_price_rule(
+                    line.product_id,
+                    max(1.0, eval_qty),
+                    partner=partner,
+                    date=date,
+                    uom_id=line.product_id.uom_id
+                )
+                
+                if rule_id:
+                    final_price = price
+                    applied_rule = self.env['product.pricelist.item'].browse(rule_id)
+                    break 
+
+            if applied_rule:
+                if applied_rule.compute_price == 'percentage':
+                    line.unit_price = base_price
+                    line.discount = applied_rule.percent_price
+                else:
+                    line.unit_price = final_price
+                    line.discount = 0.0
             

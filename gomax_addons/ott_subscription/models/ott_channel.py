@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api
 from odoo import http
 from odoo.http import request, Response
 
@@ -7,7 +7,11 @@ class OTTChannel(models.Model):
     _description = 'OTT Channel'
     
     channel_name = fields.Char('Channel Name', required=True)
-    channel_code = fields.Char('Channel Code', required=True, unique=True)
+    channel_code = fields.Char('Channel Code', 
+                               required=True, 
+                               copy=False,
+                               readonly=True,
+                               default='New')
     channel_image = fields.Image(
         "Channel Image",
         max_width=1920,
@@ -26,6 +30,14 @@ class OTTChannel(models.Model):
     )
 
     image_filename = fields.Char("Image File Name")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('channel_code', 'New') == 'New':
+                vals['channel_code'] = self.env['ir.sequence'].next_by_code('ott.channel.code') or 'New'
+        return super(OTTChannel, self).create(vals_list)
+
 
     def get_active_channels(self):
         channels = self.search([('channel_state', '=', True)])
