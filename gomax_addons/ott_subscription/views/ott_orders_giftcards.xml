@@ -1,125 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <data>
-
-    <record id="view_sale_order_giftcard_list" model="ir.ui.view">
-      <field name="name">sale.order.giftcard.list</field>
-      <field name="model">sale.order</field>
-      <field name="priority">1</field>
-      <field name="arch" type="xml">
-        <list string="Órdenes Giftcards">
-          <field name="name"/>
-          <field name="date_order"/>
-          <field name="partner_id"/>
-          <field name="franchise_id"/>
-          <field name="gift_template_id"/>
-          <field name="amount_total" sum="Total"/>
-          <field name="invoice_status"
-                 widget="badge"
-                 decoration-info="invoice_status == 'to invoice'"
-                 decoration-success="invoice_status == 'invoiced'"/>
-        </list>
-      </field>
-    </record>
-
-    <record id="view_sale_order_giftcard_form" model="ir.ui.view">
-      <field name="name">sale.order.giftcard.form</field>
-      <field name="model">sale.order</field>
-      <field name="priority">40</field>
-      <field name="arch" type="xml">
-        <form string="Orden Giftcard">
-
-          <header>
-            <field name="state" widget="statusbar" statusbar_visible="draft,sent,sale,cancel"/>
-
-            <button name="action_confirm" string="Confirmar" type="object" class="btn-primary"
-                    invisible="state != 'draft'"/>
-            <button name="action_cancel" string="Cancelar" type="object" class="btn-default"
-                    invisible="state != 'draft'"/>
-
-            <button name="action_create_gift_invoice" string="Crear factura" type="object" class="btn-primary"
-                    invisible="state != 'sale' or invoice_status != 'to invoice'"/>
-            <button name="action_cancel" string="Cancelar" type="object" class="btn-default"
-                    invisible="state != 'sale'"/>
-          </header>
-
-          <sheet>
-            <group>
-              <field name="is_giftcard" invisible="1"/>
-              <field name="allowed_franchise_ids" invisible="1"/>
-              <field name="allowed_gift_template_ids" invisible="1"/>
-              
-              <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer'}"/>
-              
-              <field name="franchise_id"
-                     invisible="not is_giftcard"
-                     required="is_giftcard"
-                     options="{'no_create': True, 'no_open': True}"
-                     domain="[('id', 'in', allowed_franchise_ids)]"/>
-
-              <field name="gift_template_id" 
-                     invisible="not is_giftcard"
-                     required="is_giftcard"
-                     options="{'no_create': True, 'no_open': True}"
-                     domain="[('id', 'in', allowed_gift_template_ids)]"
-                     readonly="not franchise_id"/>
-            </group>
-
-            <group string="Líneas de Giftcard">
-              <field name="order_line" widget="one2many_list">
-                <list editable="bottom" create="0">
-                  <field name="product_id" readonly="1" force_save="1"/>
-                  <field name="name" string="Descripción / Evento" readonly="1" force_save="1"/>
-                  <field name="rate_template_id" column_invisible="True" force_save="1"/>
-                  <field name="product_uom_qty"/>
-                  <field name="price_unit" readonly="1" force_save="1"/>
-                  <field name="tax_id" widget="many2many_tags" readonly="1" force_save="1"/>
-                  <field name="price_total" readonly="1"/>
+    <data>
+        <record id="view_sale_order_giftcard_list" model="ir.ui.view">
+            <field name="name">sale.order.giftcard.list</field>
+            <field name="model">sale.order</field>
+            <field name="arch" type="xml">
+                <list string="Órdenes Giftcards">
+                    <field name="name"/>
+                    <field name="date_order"/>
+                    <field name="partner_id"/>
+                    <field name="franchise_id"/>
+                    <field name="gift_template_id"/>
+                    <field name="amount_total" sum="Total General" widget="monetary"/>
+                    <field name="invoice_status" widget="badge" 
+                           decoration-info="invoice_status == 'to invoice'" 
+                           decoration-success="invoice_status == 'invoiced'"/>
                 </list>
-              </field>
-            </group>
+            </field>
+        </record>
 
-            <group string="Totales" class="oe_subtotal_footer oe_right">
-              <field name="amount_untaxed" readonly="1" widget="monetary"/>
-              <field name="amount_tax" readonly="1" widget="monetary"/>
-              <field name="amount_total" readonly="1" class="oe_subtotal_footer_separator" widget="monetary"/>
-            </group>
-          </sheet>
-        </form>
-      </field>
-    </record>
+        <record id="view_sale_order_giftcard_form" model="ir.ui.view">
+            <field name="name">sale.order.giftcard.form</field>
+            <field name="model">sale.order</field>
+            <field name="priority">40</field>
 
-    <record id="action_sale_order_giftcards" model="ir.actions.act_window">
-      <field name="name">Órdenes Giftcards</field>
-      <field name="res_model">sale.order</field>
-      <field name="view_mode">list,form</field>
-      <field name="domain">[('is_giftcard','=',True)]</field>
-      <field name="context">{'default_is_giftcard': True}</field>
-    </record>
+            <field name="arch" type="xml">
+                <form string="Orden Giftcard">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,sale,cancel"/>
+                        <button name="action_confirm" string="Confirmar" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                        <button name="action_cancel" string="Cancelar" type="object" class="btn-default" invisible="state not in ['draft', 'sale']"/>
+                        <button name="action_create_gift_invoice" string="Crear factura" type="object" class="btn-primary" invisible="state != 'sale' or invoice_status != 'to invoice'"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="is_giftcard" invisible="1"/>
+                            <field name="allowed_franchise_ids" invisible="1"/>
+                            <field name="allowed_gift_template_ids" invisible="1"/>
+                            <field name="order_line" invisible="1"/> 
+                            <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer'}"/>
+                            <field name="franchise_id" invisible="not is_giftcard" required="is_giftcard" options="{'no_create': True, 'no_open': True}" domain="[('id', 'in', allowed_franchise_ids)]"/>
+                            <field name="gift_template_id" invisible="not is_giftcard" required="is_giftcard" options="{'no_create': True, 'no_open': True}" domain="[('id', 'in', allowed_gift_template_ids)]" readonly="not franchise_id"/>
+                        </group>
 
-    <record id="action_gift_order_view_list" model="ir.actions.act_window.view">
-        <field name="sequence" eval="1"/>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="view_sale_order_giftcard_list"/>
-        <field name="act_window_id" ref="action_sale_order_giftcards"/>
-    </record>
+                        <notebook invisible="not gift_template_id">
+                            <page string="Planes Base" name="base_lines">
+                                <field name="base_line_ids" mode="list" context="{'default_ott_type': 'base'}">
+                                    <list editable="bottom" create="0">
+                                        <field name="currency_id" column_invisible="True"/>
+                                        <field name="product_id" readonly="state == 'terminated'" force_save="1"/>
+                                        <field name="name" widget="section_and_note_text" optional="show"/>
+                                        <field name="product_uom_qty" string="Cant." readonly="1"/>
+                                        <field name="price_unit" readonly="1" string="Price"/>
+                                        <field name="tax_id" widget="many2many_tags"/>
+                                        <field name="state" widget="badge" readonly="1" decoration-muted="state == 'draft'" decoration-success="state == 'open'" decoration-danger="state == 'terminated'"/>
+                                        <field name="permanence_type" column_invisible="True"/>
+                                        <field name="ott_permanence" options="{'no_edit': True}" readonly="state == 'terminated'" required="1"/>
+                                        <field name="ott_type" string="Tipo OTT" readonly="1" force_save="1"/>
+                                        <field name="price_subtotal" string="Subtotal" readonly="1" force_save="1" sum="Suma Subtotal"/>
+                                        <field name="price_tax" string="Tax" readonly="1" optional="show" force_save="1" sum="Suma Impuestos"/>
+                                        <field name="price_total" string="Total" readonly="1" widget="monetary" force_save="1" sum="Suma Total"/>
+                                    </list>
+                                </field>
+                            </page>
 
-    <record id="action_gift_order_view_form" model="ir.actions.act_window.view">
-        <field name="sequence" eval="2"/>
-        <field name="view_mode">form</field>
-        <field name="view_id" ref="view_sale_order_giftcard_form"/>
-        <field name="act_window_id" ref="action_sale_order_giftcards"/>
-    </record>
+                            <page string="Eventos" name="event_lines">
+                                <field name="event_line_ids" mode="list" context="{'default_ott_type': 'event'}">
+                                    <list editable="bottom" create="0">
+                                        <field name="currency_id" column_invisible="True"/>
+                                        <field name="rate_template_id" force_save="1"/>
+                                        <field name="product_id" string="Product" readonly="1" force_save="1"/>
+                                        <field name="name" widget="section_and_note_text" optional="show"/>
+                                        <field name="product_uom_qty" string="Cant." readonly="1"/>
+                                        <field name="price_unit" string="Price" readonly="1" force_save="1"/>
+                                        <field name="tax_id" widget="many2many_tags" readonly="state == 'terminated'"/>
+                                        <field name="ott_permanence" readonly="1" force_save="1" required="1"/>
+                                        <field name="ott_type" string="Tipo OTT" readonly="1" force_save="1"/>
+                                        <field name="price_subtotal" string="Subtotal" readonly="1" force_save="1" sum="Suma Subtotal"/>
+                                        <field name="price_tax" string="Tax" readonly="1" optional="show" force_save="1" sum="Suma Impuestos"/>
+                                        <field name="price_total" string="Total" readonly="1" widget="monetary" force_save="1" sum="Suma Total"/>
+                                    </list>
+                                </field>
+                            </page>
 
-    <menuitem id="menu_sale_order_giftcards" name="Órdenes Giftcards" parent="sale.sale_order_menu" action="action_sale_order_giftcards" sequence="25"/>
+                            <page string="Extras" name="extra_lines">
+                                <field name="extra_line_ids" mode="list" context="{'default_ott_type': 'extra'}">
+                                    <list editable="bottom" create="0">
+                                        <field name="currency_id" column_invisible="True"/>
+                                        <field name="product_id" readonly="state == 'terminated'"/>
+                                        <field name="name" widget="section_and_note_text" optional="show"/>
+                                        <field name="product_uom_qty" string="Cant." readonly="1"/>
+                                        <field name="price_unit" readonly="1"/>
+                                        <field name="tax_id" widget="many2many_tags"/>
+                                        <field name="ott_permanence" readonly="state == 'terminated'" required="1"/>
+                                        <field name="ott_type" string="Tipo OTT" readonly="1" force_save="1"/>
+                                        <field name="price_subtotal" string="Subtotal" readonly="1" force_save="1" sum="Suma Subtotal"/>
+                                        <field name="price_tax" string="Tax" readonly="1" optional="show" force_save="1" sum="Suma Impuestos"/>
+                                        <field name="price_total" string="Total" readonly="1" widget="monetary" force_save="1" sum="Suma Total"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
 
-    <record id="sale.action_orders" model="ir.actions.act_window">
-      <field name="domain">[('is_giftcard','=',False)]</field>
-    </record>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
 
-    <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
-      <field name="domain">[('is_giftcard','=',False)]</field>
-    </record>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-  </data>
+        <record id="action_sale_order_giftcards" model="ir.actions.act_window">
+            <field name="name">Órdenes Giftcards</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('is_giftcard','=',True)]</field>
+            <field name="context">{'default_is_giftcard': True}</field>
+        </record>
+
+        <record id="action_gift_order_view_list" model="ir.actions.act_window.view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_sale_order_giftcard_list"/>
+            <field name="act_window_id" ref="action_sale_order_giftcards"/>
+        </record>
+
+        <record id="action_gift_order_view_form" model="ir.actions.act_window.view">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_sale_order_giftcard_form"/>
+            <field name="act_window_id" ref="action_sale_order_giftcards"/>
+        </record>
+
+        <menuitem id="menu_sale_order_giftcards" name="Órdenes Giftcards" parent="sale.sale_order_menu" action="action_sale_order_giftcards" sequence="25"/>
+    </data>
 </odoo>

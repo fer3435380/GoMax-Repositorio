@@ -45,49 +45,63 @@
     <!-- 2️⃣ GIFT TEMPLATE -->
     <!-- ========================================================= -->
     <record id="view_gift_template_form" model="ir.ui.view">
-      <field name="name">gift.template.form</field>
-      <field name="model">gift.template</field>
-      <field name="arch" type="xml">
-        <form string="Plantilla de Giftcard">
-          <sheet>
-            <div class="oe_title">
-                <h1><field name="name" placeholder="Nombre de la plantilla..."/></h1>
-            </div>
-            <group>
-              <group string="Configuración General">
-                <field name="description"/>
-                <field name="giftcard_limit"/>
-                <field name="franchise_ids" widget="many2many_tags"/>
-                <field name="season_id"/>
-              </group>
-              <group string="Producto y Tipo">
-                  <field name="ott_type_selection" widget="radio" options="{'horizontal': true}"/>
-                  
-                  <field name="product_id" 
-                        invisible="ott_type_selection == 'event'"
-                        required="ott_type_selection in ['base', 'extra']"
-                        options="{'no_create': True}"/>
-                  
-                  <field name="rate_template_id" 
-                        invisible="ott_type_selection != 'event'"
-                        required="ott_type_selection == 'event'"
-                        options="{'no_create': True}"/>
-              </group>
-            </group>
-            <group string="Vigencia y Permanencia">
-              <group>
-                <field name="permanence_id"/>
-                <field name="start_date"/>
-                <field name="end_date"
-                       modifiers="{
-                           'readonly': [['permanence_id.permanence_type','!=','fixed_date']],
-                           'required': [['permanence_id.permanence_type','=','fixed_date']]
-                       }"/>
-              </group>
-            </group>
-          </sheet>
-        </form>
-      </field>
+        <field name="name">gift.template.form</field>
+        <field name="model">gift.template</field>
+        <field name="arch" type="xml">
+            <form string="Plantilla de Giftcard">
+                <sheet>
+                    <field name="allowed_base_ids" invisible="1"/>
+                    <field name="allowed_extra_ids" invisible="1"/>
+                    <field name="allowed_event_ids" invisible="1"/>
+
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Nombre de la plantilla..."/></h1>
+                    </div>
+                    <group>
+                        <group string="Configuración General">
+                            <field name="description"/>
+                            <field name="giftcard_limit"/>
+                            <field name="franchise_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="season_id" options="{'no_create': True}"/>
+                        </group>
+                        <group string="Vigencia y Tipo Principal">
+                            <field name="permanence_id" options="{'no_create': True}"/>
+                            <field name="start_date"/>
+                            <field name="end_date"
+                                  invisible="not permanence_id"
+                                  readonly="permanence_id and permanence_id.permanence_type != 'fixed_date'"
+                                  required="permanence_id and permanence_id.permanence_type == 'fixed_date'"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Planes Base" name="base_products">
+                            <field name="base_product_ids" 
+                                  widget="many2many_tags"
+                                  options="{'no_create': True}"
+                                  domain="[('product_tmpl_id.ott_subscription_type', '=', 'base'), ('id', 'in', allowed_base_ids)]"
+                                  placeholder="Seleccione los planes base..."/>
+                        </page>
+
+                        <page string="Servicios Extras" name="extra_products">
+                            <field name="extra_product_ids" 
+                                  widget="many2many_tags"
+                                  options="{'no_create': True}"
+                                  domain="[('product_tmpl_id.ott_subscription_type', '=', 'extra'), ('id', 'in', allowed_extra_ids)]"
+                                  placeholder="Seleccione los servicios extras..."/>
+                        </page>
+
+                        <page string="Eventos" name="event_products">
+                            <field name="rate_template_ids" 
+                                  widget="many2many_tags"
+                                  options="{'no_create': True}"
+                                  domain="[('rate_state', '=', True), ('id', 'in', allowed_event_ids)]"
+                                  placeholder="Seleccione los eventos..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
     </record>
 
     <record id="view_gift_template_list" model="ir.ui.view">
@@ -96,9 +110,7 @@
       <field name="arch" type="xml">
         <list string="Plantillas de Giftcards">
           <field name="name"/>
-          <field name="ott_type_selection" string="Tipo"/>
-          <field name="product_id" optional="show"/>
-          <field name="rate_template_id" optional="show" string="Tarifa/Evento"/>
+          <!-- <field name="product_ids" optional="show"/> -->
           <field name="giftcard_limit"/>
           <field name="start_date"/>
           <field name="end_date"/>
@@ -130,8 +142,9 @@
             <group>
               <field name="code_display" readonly="1"/>
               <field name="template_id"/>
-              <field name="product_id" readonly="1" options="{'no_open': True}"/>
-
+              <field name="base_product_ids" widget="many2many_tags" readonly="1" options="{'no_open': True}"/>
+              <field name="extra_product_ids" widget="many2many_tags" readonly="1" options="{'no_open': True}"/>
+              <field name="rate_template_ids" widget="many2many_tags" readonly="1" options="{'no_open': True}"/>
               <!-- Domain dinámico usando allowed_franchise_ids -->
               <field name="franchise_id"
                      domain="[('id', 'in', allowed_franchise_ids)]"/>
@@ -154,11 +167,8 @@
         <list string="Giftcards">
           <field name="code_display" readonly="1" width="150"/>
           <field name="template_id" width="150"/>
-          <field name="product_id" width="150"/>
           <field name="franchise_id" width="150"/>
           <field name="sale_order_id" width="100"/>
-          <!-- <field name="issue_date" width="100"/>
-          <field name="expiration_date" width="150"/> -->
           <field name="state"/>
           <field name="res_partner" readonly="1"/>
 
